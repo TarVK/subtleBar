@@ -1,2 +1,2 @@
 # subtleBar
-A low-profile scrollbar system, that hides itself when not nessairy.
+A low-profile scrollbar system that hides itself when not necessary,
