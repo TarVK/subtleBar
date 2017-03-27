@@ -1,3 +1,1095 @@
-<div style=background-color:orange>
-  This is only a test
-</div>
+<!doctype html>
+<html>
+    <head>
+        <title>subtleBar examples</title>
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <script type="text/javascript" src="https://rawgit.com/marcj/css-element-queries/master/src/ResizeSensor.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js"></script>
+        <script type="text/javascript" src="scrollbar.js"></script>
+        
+        
+        <style>
+            html,body{
+                height: 100%;
+                overflow: hidden;
+            }
+            body{
+                overflow: hidden;
+                width: 1280px;
+                position: relative;
+                left: 50%;
+                transform: translate(-50%,0);
+            }
+            .leftBar{
+                width: 200px;
+                float: left;
+                
+                padding-top: 50px;
+            }
+            .nav{
+                height: 350px;
+            }
+            .content{
+                width: calc(100% - 200px);
+                height: 100%;
+                float: left;
+            }
+            .content>.category{
+                padding-left: 150px;
+            }
+            .content>.se>[scrollContent]{
+                padding-left: 150px;
+                box-sizing: border-box;
+            }
+            .nav .subCategories{
+                height: 0px;
+                overflow: hidden;
+            }
+            .nav .categoryTitle{
+                cursor: pointer;
+                padding: 4px;
+                padding-left: 10px;
+            }
+            .nav .category.selected .categoryTitle{
+                border-left: 1px solid black;
+            }
+            .nav .categoryTitle:hover{
+                background-color: #DDD;
+            }
+            .nav .subCategory{
+                cursor: pointer;
+                padding: 2px;
+                padding-left: 30px;
+            }
+            .nav .subCategory.selected{
+                border-left: 1px solid black;
+            }
+            .nav .subCategory:hover{
+                background-color: #DDD;
+            }
+        
+            .content .category{
+                margin: 20px;
+            }
+            .content .categoryTitle{
+                font-size: 40px;
+            }
+            .content .subCategory{
+                margin: 10px;
+                margin-bottom: 70px;
+            }
+            .content .subCategoryTitle{
+                font-size: 25px;
+                padding: 2px;
+            }
+            .content .description{
+                padding: 2px;
+                margin-bottom: 10px;
+            }
+            .content .example{
+                border: 1px solid #CCC;
+            }
+            .content .demo{
+                padding-bottom: 10px;
+            }
+            .content .exampleCode+.exampleCode{
+                border-top: 1px solid #CCC;
+            }
+            .content .exampleCode{
+                padding: 10px;
+                background-color: #EEE;
+            }
+            .content .code.ace_editor.ace-xcode{
+                width: 100%;
+                background-color: #EEE;
+            }
+            .content .code > textarea {
+                top: auto !important;
+            }
+            .content .defaultVal:before{
+                margin-left: 20px;
+                content: "default: ";
+            }
+            .content .defaultVal{
+                font-size: 17px;
+                display: inline;
+                color: #AAA;
+            }
+            .content .note:before{
+                content: "Note: ";
+            }
+            .content .note{
+                color: #CCAA4B;
+            }
+            
+            .introduction{
+                margin-top: 50px;
+                padding: 10px;
+                font-size: 18px;
+            }
+            .introductionTitle{
+                font-size: 40px;
+            }
+            code{
+                color: #666;
+            }
+            
+            /*link style from http://mrmrs.io/links/*/
+            a {
+                transition: color .4s;
+                color: #265C83;
+                text-decoration: none;
+            }
+            
+            a:link,
+            a:visited { color: #467CA3; }
+            a:hover   { color: #7FDBFF; }
+            a:active  {
+                transition: color .3s;
+                color: #007BE6;
+            }
+            
+            .projectLink,
+            .dependencies{
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body style=margin:0px;opacity:0>
+        <div class=leftBar>
+            <div class=nav>
+            </div>
+            <div class=info>
+                <div class=author>Creator: Tar van Krieken</div>
+                <div class=projectLink><a href=https://github.com/TarVK/subtleBar>Download</a></div>
+                <div class=dependencies>
+                    Dependencies:
+                    <lu>
+                        <li type=square><a href=https://jquery.com/>jQuery</a></li>
+                        <li type=square><a href=https://github.com/marcj/css-element-queries>resize-sensor</a> <span style=color:#AAA>optional</span></li>
+                    </lu>
+                </div>
+            </div>    
+        </div>
+        <div class=content>
+            <script>
+                $ = (function(j){
+                    return function(selector){
+                        if(selector==".scrollElement" || selector==".addData" ||selector==".demo")
+                            return j(selector).last();
+                        else
+                            return j(selector);
+                    }
+                })($);
+                function saveHtml(element){
+                    element[0].oldHtml = element.html();
+                }
+            </script>
+            <div class=introduction>
+                <div class=introductionTitle>General</div>
+                These scrollbars are meant to be as low profile as possible, they however do offer a lot of customization.<br>
+                For most of them, you will need to hover over them to make them appear.
+                
+            </div>
+            <div class=category>
+                <div class=categoryTitle>Basic</div>
+                <div class=subCategory>
+                    <div class=subCategoryTitle>vertical<div class=defaultVal>true</div></div>
+                    <div class=description>Create a vertical scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar();
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--vertical-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Horizontal<div class=defaultVal>false</div></div>
+                    <div class=description>Create a horizontal scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=width:1260px;height:100%;>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({vertical:false,horizontal:true});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--horizontal-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Vertical and horizontal</div>
+                    <div class=description>Create a horizontal scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=width:1260px;height:150px;>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                </div>
+                                <div style=width:1260px;height:150px;>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({vertical:true,horizontal:true});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--both-->
+            </div>
+            <div class=category>
+                <div class=categoryTitle>Hide</div>
+                <div class=subCategory>
+                    <div class=subCategoryTitle>autoHide<div class=defaultVal>true</div></div>
+                    <div class=description>Enable or disable the scrollbar hiding when not in use</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({autoHide:false});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--autoHide-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>autoHideTime<div class=defaultVal>1000</div></div>
+                    <div class=description>The amount of milliseconds to wait before hiding the scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({autoHideTime:2000});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--autoHideTime-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>hideIfNoOverflow<div class=defaultVal>true</div></div>
+                    <div class=description>Disables the scrollbar if the element has no overflow</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({autoHide:true});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--hideIfNoOverflow-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>neverShow<div class=defaultVal>false</div></div>
+                    <div class=description>Removes the scrollbar completely, so it is never visible</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({neverShow:true});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--neverShow-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>hoverTime<div class=defaultVal>50</div></div>
+                    <div class=description>The amount of milliseconds someone needs to hover over the scrollbar to make it appear.<br>This delay prevents the scrollbar from showing up when the mouse travels over it quickly</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({hoverTime:500});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--hoverTime-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>showDuration<div class=defaultVal>50</div></div>
+                    <div class=description>How long the show animation takes</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({showDuration:500});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--showDuration-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>hideDuration<div class=defaultVal>300</div></div>
+                    <div class=description>How long the hide animation takes</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({hideDuration:1000});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--hideDuration-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>clickScrollDuration<div class=defaultVal>500</div></div>
+                    <div class=description>The time it takes to jump to location when clicking above or below the scrollbar thumb</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({clickScrollDuration:2000});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--clickScrollDuration-->
+            </div>
+            <div class=category>
+                <div class=categoryTitle>Appearance</div>
+                <div class=subCategory>
+                    <div class=subCategoryTitle>minBarSize<div class=defaultVal>50</div></div>
+                    <div class=description>The minimum size a scrollbar must be</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({minBarSize:150});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--minBarSize-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>fadeVertical<div class=defaultVal>false</div></div>
+                    <div class=description>Will add a shade if not all data is visible<br>
+                    <div class=note>The scrollElement requires a background-color to work properly</div></div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%;background-color:white>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({fadeVertical:true});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--fadeVertical-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>fadeHorizontal<div class=defaultVal>false</div></div>
+                    <div class=description>Will add a shade if not all data is visible<br>
+                    <div class=note>The scrollElement requires a background-color to work properly</div></div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%;background-color:white>
+                                <div style=width:1260px;height:100%;>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({vertical:false,horizontal:true,fadeHorizontal:true});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--fadeHorizontal-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>verticalMargin<div class=defaultVal>null</div></div>
+                    <div class=description>A margin to be added above and below the scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%;background-color:white>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({verticalMargin:{top:50,bottom:50}});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--verticalMargin-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>horizontalMargin<div class=defaultVal>null</div></div>
+                    <div class=description>A margin to be added to the left and right of the scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%;>
+                                <div style=width:1260px;height:100%;>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                    <div style='float:left;height:calc(100% - 20px);width:400px;background-color:#EEE;margin:10px'>This would be some content</div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({vertical:false,horizontal:true,horizontalMargin:{left:100,right:100}});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--horizontalMargin-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>moveAnimation<div class=defaultVal>false</div></div>
+                    <div class=description>Use a move animation instead of fade, for the hiding of the scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%;>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({moveAnimation:true});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--moveAnimation-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>custom styling</div>
+                    <div class=description>Customize the css for the scrollbar</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=customScrollElement style=height:200px;width:100%;>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                            <style>
+                                .customScrollElement [scrollbar]>[bar]{
+                                    border-radius: 5px;
+                                    background-color: #FF481F;
+                                    border-color: #FFAA96;
+                                    opacity: 0.5;
+                                }
+                                .customScrollElement [scrollbar].selected>[bar],
+                                .customScrollElement [scrollbar]>[bar]:hover{
+                                    opacity: 0.8;
+                                }
+                            </style>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".customScrollElement").scrollbar();
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--custom styling-->
+            </div>
+            <div class=category>
+                <div class=categoryTitle>Advanced</div>
+                <div class=subCategory>
+                    <div class=subCategoryTitle>sectionListener<div class=defaultVal>null</div></div>
+                    <div class=description>Add a listener to detect when the user scrolled to a certain area<br>
+                    The offset defines what point relative to the scrollElement it should be the closest to<br>
+                    The selectors define what element it should look for</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div class='el el0' style=height:150px;background-color:#EEE;margin:10px>This would be some content of element 0</div>
+                                <div class='el el1' style=height:150px;background-color:#EEE;margin:10px>This would be some content of element 1</div>
+                                <div class='el el2' style=height:150px;background-color:#EEE;margin:10px>This would be some content of element 2</div>
+                            </div>
+                            <div class=currentElement style=padding:10px;background-color:#FFE291;margin-top:5px;>
+                                Currently looking at the class:
+                                <span></span>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));console.log($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".scrollElement").scrollbar({sectionListener:{
+                                        listener: function(element){
+                                                        $(".currentElement span").text($(element).attr("class"));
+                                                    },
+                                        offset:{top:100,left:0},
+                                        selectors:".el"   
+                                    }});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--sectionListener-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Custom default styling</div>
+                    <div class=description>If you want to use a certain style for every of your scrollbars, you are able to change this within the subtleBar file too.<br>
+                        The styling is contained at the bottom of the file.
+                    </div>
+                    <div class=example>
+                        <div class=exampleCode>
+                            Look for the following code to alter:
+                            <div class=code lines=20>
+                                <script>
+                                    $("head").append("<style>"+
+                                        "[scrollPane]{"+
+                                        "   position:relative;"+
+                                        "   overflow: scroll;"+
+                                        "   height:100%;"+
+                                        "   width:100%;"+
+                                        "}"+
+                                        "[scrollPane]::-webkit-scrollbar{"+
+                                        "    display: none;"+//hide scrollbar on mac
+                                        "}"+
+                                        "[scrollContent]{"+
+                                        "   min-height:100%;"+
+                                        "   min-width:100%;"+
+                                        "   width:fit-content;"+
+                                        "   height:fit-content;"+
+                                        "   padding: 0.1px;"+ //prevent margin collapse
+                                        "}"+
+                                        "[scrollbar]{"+
+                                        "   z-index:100;"+
+                                        "   position:absolute;"+
+                                        "   box-sizing:border-box;"+
+                                        "}"+
+                                        "[scrollbar]>[bar]{"+
+                                        "   left:0px;"+
+                                        "   top:0px;"+
+                                        "   background-color:#CCC;"+
+                                        "   border: 1px #EEE solid;"+
+                                        "   position:relative;"+
+                                        "   cursor:default;"+
+                                        "   box-sizing:border-box;"+
+                                        "}"+
+                                        "[scrollbar]>[bar]:hover,[scrollbar].selected>[bar]{"+
+                                        "   background-color:#AAA;"+
+                                        "}"+
+                                        "[scrollbar][v]{"+
+                                        "   right:0px;"+
+                                        "   top:0px;"+
+                                        "   width:10px;"+
+                                        "   height:100%;"+
+                                        "}"+
+                                        "[scrollbar][v]>[bar]{"+
+                                        "   width:100%;"+
+                                        "}"+
+                                        "[scrollbar][h]{"+
+                                        "   left:0px;"+
+                                        "   bottom:0px;"+
+                                        "   width:100%;"+
+                                        "   height:10px;"+
+                                        "}"+
+                                        "[scrollbar][h]>div[bar]{"+
+                                        "   height:100%;"+
+                                        "}"+
+                                        "[scrollbarCorner]{"+
+                                        "   z-index:100;"+
+                                        "   position:absolute;"+
+                                        "   bottom:0px;"+
+                                        "   right:0px;"+
+                                        "}"+
+                                        "[disableSelect]{"+
+                                        "   -moz-user-select: none;"+
+                                        "   -webkit-user-select: none;"+
+                                        "   -ms-user-select: none;"+
+                                        "   user-select: none;"+
+                                        "}"+
+                                        "[shadeTop],[shadeBottom],[shadeLeft],[shadeRight]{"+
+                                        "   pointer-events:none;"+
+                                        "   position:absolute;"+
+                                        "   z-index:100;"+
+                                        "}"+
+                                        "[shadeLeft],[shadeRight]{"+
+                                        "   top:0px;"+
+                                        "   height:100%;"+
+                                        "   width:30px;"+
+                                        "}"+
+                                        "[shadeTop],[shadeBottom]{"+
+                                        "   height:30px;"+
+                                        "   width:100%;"+
+                                        "}"+
+                                        "[shadeTop]{"+
+                                        "   top:0px;"+
+                                        "}"+
+                                        "[shadeBottom]{"+
+                                        "   bottom:0px;"+
+                                        "}"+
+                                        "[shadeLeft]{"+
+                                        "   left:0px;"+
+                                        "}"+
+                                        "[shadeRight]{"+
+                                        "   right:0px;"+
+                                        "}"+
+                                    "</style>");
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--changeDefaultStyle-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Element functions</div>
+                    <div class=description>The element you call the scrollbar function on, will also get some additional functions<br>
+                    These functions are added to the dom element, not to the jquery element<br>
+                    The next example shows how to use one of these functions</div>
+                    <div class=example>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                  if(vertical){
+                                      el.setVerticalBar(offset, dontcascade);     //set vertical offset of the scrollbar, cascade updates the content offset
+                                      el.setverticalOffset(offset, dontcascade);  //set the content's vertical offset, cascade updates the scrollbar offset
+                                      el.setVerticalPer(per);                     //set vertical scrollbar percentage
+                                      el.getMaxVerticalBar();                     //get maximum offset of the vertical scrollbar
+                                      el.getMaxVerticalOffset();                  //get maximum vertical offset of the content
+                                      el.getVerticalBar();                        //get current offset of the vertical scrollbar
+                                      el.getVerticalOffset();                     //get current vertical offset of the content
+                                      el.getVerticalPer();                        //get current vertical offset percentage
+                                      el.focusVertical(element, duration);        //scroll vertical so element is in view
+                                      el.showVerticalScrollbar(duration, dontShowCorner);//show vertical scrollbar
+                                      el.hideVerticalScrollbar(duration, dontHideCorner);//hide vertical scrollbar
+                                      el.isVerticalScrollbarShown();              //is vertical scrollbar shown
+                                  }
+                                  if(horizontal){
+                                      el.setHorizontalBar(offset, dontcascade);   //set horizontal offset of the scrollbar, cascade updates the content offset
+                                      el.sethorizontalOffset(offset, dontcascade);//set the content's horizontal offset, cascade updates the scrollbar offset
+                                      el.setHorizontalPer(per);                   //set horizontal scrollbar percentage
+                                      el.getMaxHorizontalBar();                   //get maximum offset of the horizontal scrollbar                  
+                                      el.getMaxHorizontalOffset();                //get maximum horizontal offset of the content  
+                                      el.getHorizontalBar();                      //get current offset of the horizontal scrollbar  
+                                      el.getHorizontalOffset();                   //get current horizontal offset of the content  
+                                      el.getHorizontalPer();                      //get current horizontal offset percentage  
+                                      el.focusHorizontal(element, duration);      //scroll horizontal so element is in view  
+                                      el.showHorizontalScrollbar(duration, dontShowCorner);//show horizontal scrollbar
+                                      el.hideHorizontalScrollbar(duration, dontHideCorner);//hide horizontal scrollbar
+                                      el.isHorizontalScrollbarShown();            //is horizontal scrollbar shown  
+                                  }
+                                  if(horizontal || vertical){
+                                      el.showCorner(duration);                    //show showbar filler corner(not visible with default styling)
+                                      el.hideCorner(duration);                    //hide showbar filler corner
+                                      el.isCornerShown();                         //is filler corner shown
+                                  }
+                                  el.focus(element, duration);                    //scroll content so element is in view
+                                  el.searchSelection();                           //update what for sectionListener(Should never need to call this)
+                                  el.updateSize();                                //update the scrollbar size if contents have changed
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--elementFunctions-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Focus</div>
+                    <div class=description>An example of the element's functions<br>
+                    Focusses the element on the defined element</div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                <div class='focusEl' style=height:150px;background-color:#AAA;margin:10px>This would be some content of focusEl</div>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                            <button class=focus style=margin:15px>Focus on focusEl</button>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    var scrollEl = $(".scrollElement");
+                                    scrollEl.scrollbar();
+                                    $(".focus").click(function(){
+                                        var scrollDom = scrollEl[0]; //retrieve dom element instead of jQuery element
+                                        scrollDom.focus($(".focusEl"));
+                                    })
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--functionExample focus-->
+            </div>
+            <div class=category>
+                <div class=categoryTitle>Debugging</div>
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Structure</div>
+                    <div class=description>What the structure of the created scrollbar looks like</div>
+                    <div class=example>
+                        <div class=exampleCode>
+                            The code:
+                            <script>var n = $; $ = function(){}; //disable jquery</script>
+                            <div class=code>
+                                <div class=scrollElement style=height:200px;width:100%>
+                                    <div style=height:150px;width:1200px;background-color:#EEE;margin:10px>This would be some content of element 0</div>
+                                    <div style=height:150px;width:1200px;background-color:#EEE;margin:10px>This would be some content of element 1</div>
+                                    <div style=height:150px;width:1200px;background-color:#EEE;margin:10px>This would be some content of element 2</div>
+                                </div>
+                                <script>
+                                    $(".scrollElement").scrollbar({vertical:true, horizontal:true});
+                                </script>
+                            </div>
+                        </div>
+                        <div class=exampleCode>
+                            Will turn into:
+                            <div class=code>
+                                <div class="scrollElement" style="height: 200px; width: 100%; overflow: hidden; position: relative;" scrollelement="">
+                                    <div class="se" scrollpane="" style="width: calc(100% + 0px); height: calc(100% + 0px);">
+                                        <div class="se" scrollcontent="" style="position: relative;">
+                                            <div style=height:150px;width:1200px;background-color:#EEE;margin:10px>This would be some content of element 0</div>
+                                            <div style=height:150px;width:1200px;background-color:#EEE;margin:10px>This would be some content of element 1</div>
+                                            <div style=height:150px;width:1200px;background-color:#EEE;margin:10px>This would be some content of element 2</div>
+                                            <div class="resize-sensor" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: scroll; z-index: -1; visibility: hidden;">
+                                                <div class="resize-sensor-expand" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;">
+                                                    <div style="position: absolute; left: 0px; top: 0px; width: 1253px; height: 293px;"></div>
+                                                </div>
+                                                <div class="resize-sensor-shrink" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;">
+                                                    <div style="position: absolute; left: 0; top: 0; width: 200%; height: 200%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="se" scrollbar="" v="" hide="" style="height: calc(100% - 10px); opacity: 0;">
+                                        <div class="se" bar="" style="height: 128.667px;"></div>
+                                    </div>
+                                    <div class="se" scrollbar="" h="" hide="" style="width: calc(100% - 10px); opacity: 0;">
+                                        <div class="se" bar="" style="width: 593.067px;"></div>
+                                    </div>
+                                    <div class="se" scrollbarcorner="" style="width: 10px; height: 10px; opacity: 0;" hide=""></div>
+                                </div>
+                                <script>
+                                    $(".scrollElement").scrollbar({vertical:true, horizontal:true});
+                                </script>
+                            </div>
+                        </div>
+                        <script>$ = n;</script>
+                    </div>
+                </div>      <!--structure-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>ResizeSensor</div>
+                    <div class=description>The resize-sensor is used to update the scrollbar size when the scrollbar content's size alters<br>
+                        The resize-sensor is not made by myself, the project can be found here: <a href="https://github.com/marcj/css-element-queries">resize-sensor</a>
+                        <div class=note>The sensor seems a little glitchy, if it is not working properly, you might be able to fix it by delaying the initialization<br> That is what I have done here with the jQuery ready function</div>
+                    </div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElementR style=height:200px;width:100%;>
+                                <div class=c h=50 style=height:20px;background-color:#EEE;margin:10px;cursor:pointer;>This would be some content</div>
+                                <div class=c h=250 style=height:20px;background-color:#EEE;margin:10px;cursor:pointer;>This would be some content</div>
+                                <div class=c h=450 style=height:20px;background-color:#EEE;margin:10px;cursor:pointer;>This would be some content</div>
+                            </div>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    $(".c").click(function(){
+                                       $(".c").stop(true).animate({"height":20});
+                                       $(this).stop(true).animate({"height":$(this).attr("h")});
+                                    });
+                                    $(function(){
+                                        $(".scrollElementR").scrollbar({autoHide:false});
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--resizeSensor-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Appending data</div>
+                    <div class=description>The element listens to data being appended by default, so it can change the scrollbar size when elements are added<br>
+                        When data is added to the original scrollElement, it will be transfered to the scrollContent<br>
+                        If data is added to the scrollContent, by default, the scrollbar size will not be updated<br>
+                        In order to enable this, the option <code>detectDescendantAppend:true</code> can be added, this feature is not properly tested however<br>
+                    </div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%;>
+                                <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                            </div>
+                            <button class=addData style=margin:15px>Add data</button>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    var scrollElement = $(".scrollElement");
+                                    $(".addData").click(function(){
+                                        scrollElement.append("<div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>");
+                                    });
+                                    scrollElement.scrollbar({autoHide:false});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--appending data-->
+                <div class=subCategory>
+                    <div class=subCategoryTitle>Manual refresh</div>
+                    <div class=description>If you know from what location data will be added, you can easily refresh the scrollbar yourself too
+                        <div class=note>I am adding data to a container within the scrollElement, this would not update the scrollbar size automatically</div></div>
+                    <div class=example>
+                        <div class=demo>
+                            <div class=scrollElement style=height:200px;width:100%;>
+                                <div class=someContainer>
+                                    <div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>
+                                </div>
+                            </div>
+                            <button class=addData style=margin:15px>Add data</button>
+                        </div>
+                        <script>saveHtml($(".demo"));</script>
+                        <div class=exampleCode>
+                            <div class=code>
+                                <script>
+                                    var manualScrollElement = $(".scrollElement");
+                                    $(".addData").click(function(){
+                                        $(".someContainer").append("<div style=height:150px;background-color:#EEE;margin:10px>This would be some content</div>");
+                                        manualScrollElement.scrollbar("refresh");
+                                    });
+                                    manualScrollElement.scrollbar({autoHide:false});
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>      <!--Manual refresh-->
+            </div>
+            <div style=height:300px></div>
+        </div>
+        <br style=clear:both;>
+        <script>
+            $ = jQuery;
+        
+            //cleanup code in codeclass elements and init ace
+            $(".code").each(function(){
+                var htmlLines = [];
+                try{
+                     htmlLines = $(this).closest(".example").find(".demo")[0].oldHtml.split("\n");
+                }catch(e){}
+                var cleanHtml = "";
+                
+                var jsLines = $(this).html().split("\n");
+                var cleanJs = "";
+                //cleanup js
+                if(jsLines.length>2){
+                    jsLines.splice(0,1);
+                    jsLines.splice(jsLines.length-1,1);
+                    var spaces = / */g.exec(jsLines[0])[0].length;
+                    for(var i=0; i<jsLines.length; i++){
+                        jsLines[i] = jsLines[i].substring(spaces);
+                    }
+                    cleanJs = jsLines.join("\n");
+                }
+                // cleanup html
+                if(htmlLines.length>2){
+                    htmlLines.splice(0,1);
+                    htmlLines.splice(htmlLines.length-1,1);
+                    var spaces = / */g.exec(htmlLines[0])[0].length;
+                    for(var i=0; i<htmlLines.length; i++){
+                        htmlLines[i] = htmlLines[i].substring(spaces);
+                    }
+                    cleanHtml = htmlLines.join("\n")+"\n";
+                }
+                
+                $(this).text(cleanHtml+cleanJs);
+                
+                //this code sets up code elements
+                var editor = ace.edit(this);
+                editor.renderer.setShowGutter(false);
+                var maxLines = Infinity;
+                editor.setOptions({
+                    maxLines: Infinity,
+                    highlightActiveLine: false
+                });
+                editor.setReadOnly(true); 
+                editor.setTheme("ace/theme/xcode");
+                editor.session.setUseWrapMode(true);
+                editor.renderer.$cursorLayer.element.style.display = "none";
+                editor.getSession().setMode("ace/mode/html");
+                if($(this).attr("lines")){
+                   var parent = $(this).parent();
+                   parent.height($(this).attr("lines")*20);
+                   parent.scrollbar(); 
+                }
+            });
+            
+            
+            //create nav
+            $(".content .category").each(function(){
+                var category = $(this);
+                var navCategory = $("<div class='category basic'><div class=categoryTitle></div><div class=subCategories></div></div>");
+                navCategory.find(".categoryTitle").text(category.find(".categoryTitle").text());
+                
+                category.find(".subCategory").each(function(){
+                    var navSubCategory = $("<div class=subCategory></div>");
+                    navSubCategory.text($(this).find(".subCategoryTitle").clone().children().remove().end().text());
+                    
+                    navCategory.find(".subCategories").append(navSubCategory);
+                    navSubCategory[0].scrollEl = $(this);
+                    this.navEl = navSubCategory[0];
+                });
+                
+                
+                $(".nav").append(navCategory);
+            })
+            
+            //init nav functions
+            $(".nav .categoryTitle").click(function(){
+                var category = $(this).parent();
+                var current = $(".nav .category.selected");
+                if(category[0]!=current[0]){
+                    current.find(".subCategories").animate({height:0}, {duration:200, easing:"linear"});
+                    current.removeClass("selected");
+                    
+                    category.addClass("selected");
+                    var subCategories = category.find(".subCategories");
+                    subCategories.height("auto");
+                    var h = subCategories.height();
+                    subCategories.css({height:0}).animate({height:h}, {duration:200, easing:"linear"});
+                }
+            });
+            $(".nav .subCategory").each(function(){
+                this.select = function(){
+                    var current = $(".nav .subCategory.selected");
+                    current.removeClass("selected");
+                    
+                    var category = $(this).closest(".category");
+                    category.find(".categoryTitle").click();
+                    $(this).addClass("selected");    
+                    window.location.hash = category.index()+"-"+$(this).index();
+                }
+            }).click(function(){
+                $(".content")[0].focus(this.scrollEl);
+                this.select();
+            });
+            
+            //go to hash
+            var values = window.location.hash.substring(1).split("-");
+            var category = $($(".nav .category")[values[0]]);
+            var subCategory = $(category.find(".subCategory")[values[1]]);
+            
+            //setup scrollbar
+            var first = true;
+            $(".content").scrollbar({autoHide:false, sectionListener:{listener:function(el){
+                if(!first)
+                    el.navEl.select();
+                first = false;
+            },offset:{left:0,top:500},selectors:[".subCategory"]}, verticalMargin:{top:100,bottom:10}});
+            
+            subCategory.click();
+            $("body").css("opacity",1);
+        </script>
+    </body>
+</html>
