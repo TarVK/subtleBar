@@ -22,6 +22,14 @@
                     if(args.fadeVertical===undefined) args.fadeVertical=false;  //show a shade on top and bottom of scrollelement
                     if(args.fadeHorizontal===undefined) args.fadeHorizontal=false;  //show a shade on left and right of scrollbar
                     if(args.focusDuration===undefined) args.focusDuration=500;  //duration for scrollbar to focus on a point when function is called
+                    if(args.verticalMargin===undefined) args.verticalMargin=null; //the vertical margin the scrollbar should have ({top:0,bottom:0})
+                    if(args.horizontalMargin===undefined) args.horizontalMargin=null; //the horizontal margin the scrollbar should have ({left:0,right:0})
+                    if(args.detectDescendantAppend===undefined) args.detectDescendantAppend=false; //should the descendant change be detected
+                    if(args.focusOffset===undefined) args.focusOffset=null; //the location the focusedElement will take
+                    if(args.sectionListener===undefined) args.sectionListener=null; //a listener that detects when you scroll to another section
+                    /*section listener:
+                        {listener:function(element){},offset:{left:number,top:number},selectors:[".selector1",".selector2"]}
+                    */
                 
                     this.attr("scrollElement","");
                     setupScrollbar(this, args);
@@ -54,7 +62,8 @@
         try{
             new ResizeSensor(content[0], function() {
                 el.updateSize();
-            });   
+                // console.log("detect");
+            });
         }catch(e){};
      
         //detect elements being added or removed
@@ -76,7 +85,7 @@
                 el.updateSize();
             });    
         });
-        var config = {childList: true, characterData: true };
+        var config = {childList: true, characterData: true, subtree:args.detectDescendantAppend};
         observer.observe(el, config);
         
         //setup fade areas
@@ -139,8 +148,23 @@
         var hoverHorizontal = false;
         var verticalHoverCountdown = null; //the countdown function for when the bar should appear
         var horizontalHoverCountdown = null;
+        var removedVertical = 0;//the removed amount of pixels because of margin
+        var removedHorizontal = 0;
         if(args.vertical){
             element.append("<div class=se scrollbar v><div class=se bar></div></div>");
+            if(args.verticalMargin){
+                var m = args.verticalMargin;
+                var c = element.children("[scrollbar][v]");
+                if(m.top){
+                    removedVertical += m.top;
+                    c.css("margin-top",m.top);  
+                } 
+                if(m.bottom){
+                    removedVertical += m.bottom;
+                    c.css("margin-bottom",m.bottom);  
+                } 
+                c.css("height","calc(100% - "+removedVertical+"px)");
+            }
             var verticalBar = element.children("[scrollbar][v]").find("[bar]");
             verticalBar.mousedown(function(e){
                 e.stopImmediatePropagation();
@@ -153,6 +177,7 @@
                 $("[scrollbar].selected").removeClass("selected");
                 selectedBar = null;
             });
+            var cont = element.children("[scrollbar][v]");
             var verticalClickScroll = {barOffset:0};
             element.children("[scrollbar][v]").mouseenter(function(){
                 hoverVertical = true;
@@ -163,7 +188,7 @@
                 clearTimeout(verticalHoverCountdown);
                 verticalHoverCountdown = null;
             }).mousedown(function(e){
-                var offset = e.pageY-element.offset().top-verticalBar.outerHeight()/2;
+                var offset = e.pageY-cont.offset().top-verticalBar.outerHeight()/2;
                 verticalClickScroll.barOffset = el.getVerticalBar();
                 $(verticalClickScroll).animate({barOffset:offset},{step:function(now){
                     el.setVerticalBar(now);
@@ -174,6 +199,19 @@
         }
         if(args.horizontal){
             element.append("<div class=se scrollbar h><div class=se bar></div></div>");
+            if(args.horizontalMargin){
+                var m = args.horizontalMargin;
+                var c = element.children("[scrollbar][h]");
+                if(m.left){
+                    removedHorizontal += m.left;
+                    c.css("margin-left",m.left);  
+                } 
+                if(m.right){
+                    removedHorizontal += m.right;
+                    c.css("margin-right",m.right);  
+                } 
+                c.css("width","calc(100% - "+removedHorizontal+"px)");
+            }
             var horizontalBar = element.children("[scrollbar][h]").find("[bar]");
             horizontalBar.mousedown(function(e){
                 e.stopImmediatePropagation();
@@ -187,6 +225,7 @@
                 selectedBar = null;
             });
             var horizontalClickScroll = {barOffset:0};
+            var cont = element.children("[scrollbar][h]");
             element.children("[scrollbar][h]").mouseenter(function(){
                 hoverHorizontal = true;
             }).mouseleave(function(){
@@ -196,7 +235,7 @@
                 clearTimeout(horizontalHoverCountdown);
                 horizontalHoverCountdown = null;
             }).mousedown(function(e){
-                var offset = e.pageX-element.offset().left-horizontalBar.outerWidth()/2;
+                var offset = e.pageX-cont.offset().left-horizontalBar.outerWidth()/2;
                 horizontalClickScroll.barOffset = el.getHorizontalBar();
                 $(horizontalClickScroll).animate({barOffset:offset},{step:function(now){
                     el.setHorizontalBar(now);
@@ -210,8 +249,8 @@
             var hBar = element.children("[scrollbar][h]");
             var barWidth = vBar.find("[bar]").outerWidth(true);
             var barHeight = hBar.find("[bar]").outerHeight(true);
-            vBar.css("height","calc(100% - "+barHeight+"px)");
-            hBar.css("width","calc(100% - "+barWidth+"px)");
+            vBar.css("height","calc(100% - "+(barHeight+removedVertical)+"px)");
+            hBar.css("width","calc(100% - "+(barWidth+removedHorizontal)+"px)");
             element.append("<div class=se scrollbarCorner style=width:"+barWidth+"px;height:"+barHeight+"px></div>")
         }
         
@@ -300,6 +339,8 @@
         
         //set general functions for the element
         if(el.setVerticalBar===undefined){
+            var disableVerticalListener = false;//if the listener should be disabled due to scrolling quickly because of focus
+            var disableHorizontalListener = false;
             if(args.vertical){
                 el.setVerticalBar = function(offset, dontcascade){
                     var v = element.children("[scrollbar][v]");
@@ -310,7 +351,8 @@
                         el.setVerticalPer(offset/max);
                     if(!el.isVerticalScrollbarShown() && (!args.hideIfNoOverflow || el.heightPer!=1))
                         el.showVerticalScrollbar();
-                      
+                    if(el.searchSection) el.searchSection();
+                    
                     if(args.fadeVertical){
                         if(offset<0.5)      element.children("[shadeTop]").hide();
                         else                element.children("[shadeTop]").show();
@@ -356,10 +398,15 @@
                     duration = duration||args.focusDuration;
                     var curOffset = el.getVerticalOffset();
                     if(typeof element!="number"){
-                        offset = (curOffset+offset.offset().top+offset.outerHeight(true)/2)-(element.offset().top+element.outerHeight(true)/2);
+                        var top = args.focusOffset&&args.focusOffset.top?args.focusOffset.top:element.outerHeight(true)/2;
+                        offset = (curOffset+offset.offset().top+offset.outerHeight(true)/2)-(element.offset().top+top);
                     }
+                    disableVerticalListener = true;
                     $({offset:curOffset}).animate({offset:offset}, {duration:duration, step:function(val){
                         el.setVerticalOffset(val);
+                    },complete:function(){
+                        disableVerticalListener = false;    
+                        if(el.searchSection) el.searchSection();
                     }});
                 }
             }
@@ -369,12 +416,14 @@
                     var max = el.getMaxHorizontalBar();
                     offset = Math.max(0,Math.min(max,offset));
                     h.find("[bar]").css("left",offset);
+                    
                     if(!dontcascade)
                         el.setHorizontalPer(offset/max);
                     if(!el.isHorizontalScrollbarShown() && (!args.hideIfNoOverflow || el.widthPer!=1))
                         el.showHorizontalScrollbar();
+                    if(el.searchSection) el.searchSection();
                     
-                    if(args.fadeVertical){
+                    if(args.fadeHorizontal){
                         if(offset<0.5)      element.children("[shadeLeft]").hide();
                         else                element.children("[shadeLeft]").show();
                         if(offset>max-0.5)  element.children("[shadeRight]").hide();
@@ -405,7 +454,7 @@
                 };
                 el.getHorizontalBar = function(){
                     return parseFloat(element.children("[scrollbar][h]").find("[bar]").css("left"))||0;
-            };
+                };
                 el.getHorizontalOffset = function(){
                     return element.children("[scrollPane]").scrollLeft();
                 };
@@ -413,16 +462,21 @@
                     var h = element.children("[scrollbar][h]");
                     var max = h.width()-h.find("[bar]").outerWidth(true);
                     return el.getHorizontalbar()/max;
-            };
+                };
                 
                 el.focusHorizontal = function(offset, duration){
                     duration = duration||args.focusDuration;
                     var curOffset = el.getHorizontalOffset();
                     if(typeof element!="number"){
-                        offset = (curOffset+offset.offset().left+offset.outerWidth(true)/2)-(element.offset().left+element.outerWidth(true)/2);
+                        var left = args.focusOffset&&args.focusOffset.left?args.focusOffset.left:element.outerWidth(true)/2;
+                        offset = (curOffset+offset.offset().left+offset.outerWidth(true)/2)-(element.offset().left+left);
                     }
+                    disableHorizontalListener = true;
                     $({offset:curOffset}).animate({offset:offset}, {duration:duration, step:function(val){
                         el.setHorizontalOffset(val);
+                    },complete:function(){
+                        disableHorizontalListener = false; 
+                        if(el.searchSection) el.searchSection();
                     }});
                 }
             }
@@ -432,6 +486,65 @@
                     if(args.vertical) el.focusVertical(offset, duration);
                     if(args.horizontal) el.focusHorizontal(offset, duration);
                 }
+                
+                //section listener
+                if(args.sectionListener){
+                    //init options
+                    var sl = args.sectionListener;
+                    if(!sl.offset) 
+                        sl.offset = {top:0, left:0};
+                    if(typeof sl.selectors == "string")
+                        sl.selectors = [sl.selectors];
+                    
+                    //create the selector    
+                    var selectors = sl.selectors;
+                    for(var i=0; i<selectors.length; i++){
+                        var sel = selectors[i];
+                        selectors[i] = sel+":not("+sel+" > "+sel+")";
+                    }
+                    
+                    //create search function
+                    var lastSection = null;
+                    el.searchSection = function(){
+                        if(!disableVerticalListener && !disableHorizontalListener){
+                            var elOf = element.offset();
+                            elOf.left+=sl.offset.left;
+                            elOf.top+=sl.offset.top;
+                            
+                            var el = element;
+                            for(var i=0; i<selectors.length; i++){
+                                var elements = el.find(selectors[i]);
+                                
+                                var smallestDist = Infinity;
+                                var closest = null;
+                                elements.each(function(){
+                                    var t = $(this);
+                                    var f = t.offset();
+                                    
+                                    var dx = f.left-elOf.left;
+                                    if(dx<0) dx = Math.min(dx+t.outerWidth(true), 0);
+                                    var dy = f.top-elOf.top;
+                                    if(dy<0) dy = Math.min(dy+t.outerHeight(true), 0);
+                                    var dist = dx*dx+dy*dy;
+                                    
+                                    if(dist<smallestDist){
+                                        smallestDist = dist;
+                                        closest = this;
+                                    }
+                                });
+                                if(el==null) return;
+                                el = $(closest);
+                            }
+                            el = el[0];
+                            if(el!=lastSection){
+                                sl.listener(el);
+                                lastSection = el;
+                            }
+                        }
+                    }
+                    el.searchSection();
+                }
+                
             }
             
             if(args.vertical){
@@ -592,9 +705,14 @@
             "   height:100%;"+
             "   width:100%;"+
             "}"+
+            "[scrollPane]::-webkit-scrollbar{"+
+            "    display: none;"+//hide scrollbar on mac
+            "}"+
             "[scrollContent]{"+
             "   min-height:100%;"+
             "   min-width:100%;"+
+            "   width:fit-content;"+
+            "   height:fit-content;"+
             "   padding: 0.1px;"+ //prevent margin collapse
             "}"+
             "[scrollbar]{"+
