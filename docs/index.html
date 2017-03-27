@@ -1077,8 +1077,12 @@
             
             //go to hash
             var values = window.location.hash.substring(1).split("-");
-            var category = $($(".nav .category")[values[0]]);
-            var subCategory = $(category.find(".subCategory")[values[1]]);
+            if(values.length>=2){
+                var category = $($(".nav .category")[values[0]]);
+                var subCategory = $(category.find(".subCategory")[values[1]]);
+            }else{
+                var subCategory = $(".subCategory").first();
+            }
             
             //setup scrollbar
             var first = true;
