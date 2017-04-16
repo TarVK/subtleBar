@@ -98,7 +98,7 @@
                 el.updateSize();
             });    
         });
-        var config = {childList: true, characterData: true };
+        var config = {childList: true, characterData: true, subtree:args.detectDescendantAppend};
         observer.observe(el, config);
         
         //setup fade areas
