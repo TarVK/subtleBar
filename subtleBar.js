@@ -4,46 +4,52 @@
     var scrollStart = 0;
     jQuery.fn.extend({
         scrollbar: function(args){
-            if(!this.is("[scrollElement]")){
-                if(args==null || typeof args == "object"){
-                    if(!args) args = {};
-                    if(args.vertical===undefined) args.vertical=true;   //vertical scrollbar
-                    if(args.horizontal===undefined) args.horizontal=false;  //horizontal scrollbar
-                    if(args.minBarSize===undefined) args.minBarSize=50; //minimum scrollbar size
-                    if(args.hoverTime===undefined) args.hoverTime=50;  //hover duration before scrollbar appears
-                    if(args.showDuration===undefined) args.showDuration=50;    //duration for scrollbar to appear
-                    if(args.hideDuration===undefined) args.hideDuration=300;    //duration for scrollbar to hide
-                    if(args.autoHide===undefined) args.autoHide=true;   //scrollbar auto hides when not needed
-                    if(args.autoHideTime===undefined) args.autoHideTime=1000;   //duration after which the scrollbar hides
-                    if(args.hideIfNoOverflow===undefined) args.hideIfNoOverflow=true;   //scrollbar hides if no overflow
-                    if(args.clickScrollDuration===undefined) args.clickScrollDuration=500;  //scroll duration if clicked in scrollbar container
-                    if(args.moveAnimation===undefined) args.moveAnimation=false;    //don't change opacity but move scrollbar
-                    if(args.neverShow===undefined) args.neverShow=false;    //don't show any scrollbar at all
-                    if(args.fadeVertical===undefined) args.fadeVertical=false;  //show a shade on top and bottom of scrollelement
-                    if(args.fadeHorizontal===undefined) args.fadeHorizontal=false;  //show a shade on left and right of scrollbar
-                    if(args.focusDuration===undefined) args.focusDuration=500;  //duration for scrollbar to focus on a point when function is called
-                    if(args.verticalMargin===undefined) args.verticalMargin=null; //the vertical margin the scrollbar should have ({top:0,bottom:0})
-                    if(args.horizontalMargin===undefined) args.horizontalMargin=null; //the horizontal margin the scrollbar should have ({left:0,right:0})
-                    if(args.detectDescendantAppend===undefined) args.detectDescendantAppend=false; //should the descendant change be detected
-                    if(args.focusOffset===undefined) args.focusOffset=null; //the location the focusedElement will take
-                    if(args.sectionListener===undefined) args.sectionListener=null; //a listener that detects when you scroll to another section
-                    /*section listener:
-                        {listener:function(element){},offset:{left:number,top:number},selectors:[".selector1",".selector2"]}
-                    */
-                
-                    this.attr("scrollElement","");
-                    setupScrollbar(this, args);
+            if(this.length==1){
+                if(!this.is("[scrollElement]")){
+                    if(args==null || typeof args == "object"){
+                        if(!args) args = {};
+                        if(args.vertical===undefined) args.vertical=true;   //vertical scrollbar
+                        if(args.horizontal===undefined) args.horizontal=false;  //horizontal scrollbar
+                        if(args.minBarSize===undefined) args.minBarSize=50; //minimum scrollbar size
+                        if(args.hoverTime===undefined) args.hoverTime=50;  //hover duration before scrollbar appears
+                        if(args.showDuration===undefined) args.showDuration=50;    //duration for scrollbar to appear
+                        if(args.hideDuration===undefined) args.hideDuration=300;    //duration for scrollbar to hide
+                        if(args.autoHide===undefined) args.autoHide=true;   //scrollbar auto hides when not needed
+                        if(args.autoHideTime===undefined) args.autoHideTime=1000;   //duration after which the scrollbar hides
+                        if(args.hideIfNoOverflow===undefined) args.hideIfNoOverflow=true;   //scrollbar hides if no overflow
+                        if(args.clickScrollDuration===undefined) args.clickScrollDuration=500;  //scroll duration if clicked in scrollbar container
+                        if(args.moveAnimation===undefined) args.moveAnimation=false;    //don't change opacity but move scrollbar
+                        if(args.neverShow===undefined) args.neverShow=false;    //don't show any scrollbar at all
+                        if(args.fadeVertical===undefined) args.fadeVertical=false;  //show a shade on top and bottom of scrollelement
+                        if(args.fadeHorizontal===undefined) args.fadeHorizontal=false;  //show a shade on left and right of scrollbar
+                        if(args.focusDuration===undefined) args.focusDuration=500;  //duration for scrollbar to focus on a point when function is called
+                        if(args.verticalMargin===undefined) args.verticalMargin=null; //the vertical margin the scrollbar should have ({top:0,bottom:0})
+                        if(args.horizontalMargin===undefined) args.horizontalMargin=null; //the horizontal margin the scrollbar should have ({left:0,right:0})
+                        if(args.detectDescendantAppend===undefined) args.detectDescendantAppend=false; //should the descendant change be detected
+                        if(args.focusOffset===undefined) args.focusOffset=null; //the location the focusedElement will take
+                        if(args.sectionListener===undefined) args.sectionListener=null; //a listener that detects when you scroll to another section
+                        /*section listener:
+                            {listener:function(element){},offset:{left:number,top:number},selectors:[".selector1",".selector2"]}
+                        */
+                        
+                        this.attr("scrollElement","");
+                        setupScrollbar(this, args);
+                    }
+                }else{
+                    if(args=="refresh"){
+                        this[0].updateSize();
+                        if(this[0].setVerticalBar)
+                            this[0].setVerticalBar(this[0].getVerticalBar()); //update bar offset and fade
+                        if(this[0].setHorizontalBar)
+                            this[0].setHorizontalBar(this[0].getHorizontalBar()); //update bar offset and fade
+                    }else if(args=="reset"){
+                        this[0].updateSize();
+                        if(this[0].setHorizontalOffset) this[0].setHorizontalOffset(0);
+                        if(this[0].setVerticalOffset) this[0].setVerticalOffset(0);
+                    }
                 }
-            }else{
-                if(args=="refresh"){
-                    this[0].updateSize();
-                }else if(args=="reset"){
-                    this[0].updateSize();
-                    if(this[0].setHorizontalOffset) this[0].setHorizontalOffset(0);
-                    if(this[0].setVerticalOffset) this[0].setVerticalOffset(0);
-                }
+                return this;
             }
-            return this;
         }
     });
     
@@ -55,6 +61,14 @@
         
         var pane = $("<div class=se scrollPane><div class=se scrollContent></div></div>");
         var content = pane.children("[scrollContent]");
+        if(element.css("max-height"))
+            pane.css("max-height", element.css("max-height"));
+        if(element.css("min-height"))
+            pane.css("min-height", element.css("min-height"));
+        if(element.css("max-width"))
+            pane.css("max-width", element.css("max-width"));
+        if(element.css("min-width"))
+            pane.css("min-width", element.css("min-width"));
         //transfer content
         element.contents().appendTo(content);
         element.append(pane);
@@ -62,8 +76,7 @@
         try{
             new ResizeSensor(content[0], function() {
                 el.updateSize();
-                // console.log("detect");
-            });
+            });   
         }catch(e){};
      
         //detect elements being added or removed
@@ -85,7 +98,7 @@
                 el.updateSize();
             });    
         });
-        var config = {childList: true, characterData: true, subtree:args.detectDescendantAppend};
+        var config = {childList: true, characterData: true };
         observer.observe(el, config);
         
         //setup fade areas
@@ -224,8 +237,8 @@
                 $("[scrollbar].selected").removeClass("selected");
                 selectedBar = null;
             });
-            var horizontalClickScroll = {barOffset:0};
             var cont = element.children("[scrollbar][h]");
+            var horizontalClickScroll = {barOffset:0};
             element.children("[scrollbar][h]").mouseenter(function(){
                 hoverHorizontal = true;
             }).mouseleave(function(){
@@ -343,6 +356,7 @@
             var disableHorizontalListener = false;
             if(args.vertical){
                 el.setVerticalBar = function(offset, dontcascade){
+                    if(isNaN(offset)) offset=0;
                     var v = element.children("[scrollbar][v]");
                     var max = el.getMaxVerticalBar();
                     offset = Math.max(0,Math.min(max,offset));
@@ -352,7 +366,7 @@
                     if(!el.isVerticalScrollbarShown() && (!args.hideIfNoOverflow || el.heightPer!=1))
                         el.showVerticalScrollbar();
                     if(el.searchSection) el.searchSection();
-                    
+                      
                     if(args.fadeVertical){
                         if(offset<0.5)      element.children("[shadeTop]").hide();
                         else                element.children("[shadeTop]").show();
@@ -362,6 +376,7 @@
                     if(args.autoHide) resetVerticalHideTime();
                 };
                 el.setVerticalOffset = function(offset, dontcascade){
+                    if(isNaN(offset)) offset=0;
                     var c = element.children("[scrollPane]");
                     var max = el.getMaxVerticalOffset();
                     offset = Math.max(0,Math.min(max,offset));
@@ -412,16 +427,15 @@
             }
             if(args.horizontal){
                 el.setHorizontalBar = function(offset, dontcascade){
+                    if(isNaN(offset)) offset=0;
                     var h = element.children("[scrollbar][h]");
                     var max = el.getMaxHorizontalBar();
                     offset = Math.max(0,Math.min(max,offset));
                     h.find("[bar]").css("left",offset);
-                    
                     if(!dontcascade)
                         el.setHorizontalPer(offset/max);
                     if(!el.isHorizontalScrollbarShown() && (!args.hideIfNoOverflow || el.widthPer!=1))
                         el.showHorizontalScrollbar();
-                    if(el.searchSection) el.searchSection();
                     
                     if(args.fadeHorizontal){
                         if(offset<0.5)      element.children("[shadeLeft]").hide();
@@ -432,6 +446,7 @@
                     if(args.autoHide) resetHorizontalHideTime();
                 };
                 el.setHorizontalOffset = function(offset, dontcascade){
+                    if(isNaN(offset)) offset=0;
                     var c = element.children("[scrollPane]");
                     var max = el.getMaxHorizontalOffset();
                     offset = Math.max(0,Math.min(max,offset));
@@ -444,11 +459,11 @@
                     var offsetMax = el.getMaxHorizontalOffset();
                     el.setHorizontalBar(barMax*per, true);
                     el.setHorizontalOffset(offsetMax*per, true);
-            };
+                };
                 el.getMaxHorizontalBar = function(){
                     var h = element.children("[scrollbar][h]");
                     return h.width()-h.find("[bar]").outerWidth(true);
-            };
+                };
                 el.getMaxHorizontalOffset = function(){
                     return Math.max(0,element.children("[scrollPane]")[0].scrollWidth-element.width());
                 };
@@ -544,7 +559,6 @@
                     }
                     el.searchSection();
                 }
-                
             }
             
             if(args.vertical){
@@ -658,6 +672,8 @@
         
         //initialise the size of the scrolbars
         el.updateSize(true);
+        if(el.setVerticalOffset) el.setVerticalOffset(0); //initialise vertical position
+        if(el.setHorizontalOffset) el.setHorizontalOffset(0); //initialise horizontal position
         if(args.autoHide){
             if(args.vertical) el.hideVerticalScrollbar(0);   
             if(args.horizontal) el.hideHorizontalScrollbar(0);
